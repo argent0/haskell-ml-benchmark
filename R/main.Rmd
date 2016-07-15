@@ -141,7 +141,7 @@ All code was compiled using `-O2`.
 
 **Comparing haskell implementations**
 ```{r haskell-densities, echo=FALSE}
-require("ggplot2")
+library("ggplot2")
 
 GADT <- read.table("../measurements/GADT.dat")
 ST <- read.table("../measurements/ST.dat")

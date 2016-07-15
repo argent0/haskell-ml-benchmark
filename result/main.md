@@ -140,11 +140,6 @@ All code was compiled using `-O2`.
 ## Results
 
 **Comparing haskell implementations**
-
-```
-## Loading required package: ggplot2
-```
-
 ![plot of chunk haskell-densities](figure/haskell-densities-1.png)
 
 The GADT implementation is the best. Surprisingly, the STU is slightly worse
