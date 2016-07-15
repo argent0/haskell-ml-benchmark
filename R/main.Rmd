@@ -1,0 +1,205 @@
+# "Haskell's stochastic gradient descent implementations comparation.
+
+**date:** "2016-07-14"
+**author:** "Aner Oscar Lucero"
+
+## Method
+
+I made three implementations of stochastic gradien descent(SGD) to train logistic
+regression models.  SGD finds the optimal parameters for the model using one
+example at a time, in constrast to batch-gradien descent which uses many samples
+at once to train the model. SGD only requires to define vector dot product. The
+implementations differ in the way I implemented the vectors.
+
+In pseudo-haskell-code, SGD looks like:
+
+```haskell
+   model :: Vector (nFeatures + 1) Double
+   features :: Vector (nFeatures) Double
+
+   model := initial_model --Usually all zeros
+   foreach example in examples:
+      (features, target) := example
+      prediction = hypotesis model features
+      difference = prediction - target
+      model = (model - learningRate * (difference * features + lambda * model'))
+
+   where
+   --here `dot` represents the scalar product
+   hypotesis :: model -> features -> target
+   hypotesis = 1 / ( 1 + exp (negate $ model `dot` (1 :- features)))
+   model' = "model with it first element set to 0"
+```
+
+**GADTs**
+
+The first implementation performs vector operations using:
+
+```haskell
+infixr 5 :-
+data Vector :: Nat -> * -> * where
+   Nil :: Vector 'Z a
+   (:-) :: a -> Vector n a -> Vector ('S n) a
+
+-- Inner product
+{-# INLINE (%.) #-}
+(%.) :: Num a => Vector ('S n) a -> Vector ('S n) a -> a
+(%.) (a :- Nil) (b :- Nil) = a * b
+(%.) (a :- as@(_ :- _)) (b :- bs@(_ :- _)) = a * b + (as %. bs)
+
+```
+
+The `foreach` part of the algorithm is handled by
+```haskell
+nextModel :: Num a =>
+   a -> --lambda
+   a -> --learningRate
+   a -> --difference
+   Vector ('S n) a -> --model
+   Vector n a -> --Features
+   Vector ('S n) a --the resulting model
+
+nextModel lambda learningRate difference (m :- model) features =
+   (m - learningRate * difference) :- nextModel' lambda learningRate difference model features
+
+nextModel' :: Num a => a -> a -> a -> Vector n a -> Vector n a -> Vector n a
+nextModel' _ _ _ Nil Nil = Nil
+nextModel' lambda learningRate difference (m :- ms) (f :- fs) =
+   (m - learningRate * (difference * f + lambda * m)) :- nextModel' lambda learningRate difference ms fs
+```
+
+with the hypotesis calculated as:
+
+```haskell
+sigmoidHypothesis :: Model -> Features -> Target
+sigmoidHypothesis model features =
+   1 / ( 1 + exp (negate $ model %. (1 :- features)))
+```
+The whole code can be found [here](../src/MainGADT.hs).
+
+**MonadST, STArray & IArray**
+
+The first implementation performs vector operations an IArray parametrized by
+the its number of elements:
+
+```haskell
+data Vector :: Nat -> * where
+   Vector :: SNat n -> Array Int Double -> Vector n
+```
+
+The `foreach` part of the algorithm and the hypothesis are handled by the
+following imperative-syle code.
+
+```haskell
+nextModel lambda learningRate difference (Vector sn modelArr) (Vector _ featureArr) = Vector sn $ runSTArray $ do
+   result <- newArray (1, nResultElements) 0 :: ST s (STArray s Int Double)
+   writeArray result 1 $ (modelArr ! 1) - learningRate * difference
+   forM_ [2..nResultElements] (\elementIndex ->
+      do
+         let modelElement = modelArr ! elementIndex
+         let featureElement = featureArr ! (elementIndex - 1)
+         writeArray result elementIndex $ modelElement - learningRate * (difference * featureElement + lambda * modelElement))
+   return result
+   where
+   nResultElements = snatToInt sn
+
+sigmoidHypothesis :: Model -> Features -> Target
+sigmoidHypothesis (Vector sn modelArr) (Vector _ featuresArr) = runST $ do
+   expo <- newSTRef $ modelArr ! 1
+   forM_ [2..(snatToInt sn)] (\elementIndex ->
+         modifySTRef expo (+ (modelArr ! elementIndex) * (featuresArr ! (elementIndex - 1))))
+   readSTRef expo >>= \e -> return $ 1 / (1 + exp (negate e))
+```
+
+The whole code can be found [here](../src/MainST.hs).
+
+**MonadST, STUArray & UArray**
+
+According to the [wiki](https://wiki.haskell.org/Arrays#Unboxed_arrays), unboxed
+arrays are a lighter version of IArray. It is also easy to change code using
+`IArray` and `STArray` to start using `UArray` and `STUArray`.  This third
+implementation does just that.
+
+The whole code can be found [here](../src/MainSTU.hs).
+
+**Python**
+
+I also made a python-3.5.2 implementation to compare. This version uses the
+[numpy](http://www.numpy.org/)-1.11.1 python library to perform the vector operations.
+
+The code can be found [here](src/Main.py).
+
+**Benchmark**
+
+For each implementation I measured the time needed to train a model using
+1,000,000 examples. This measurement is repeated 100 times to observe the
+variations. The code performing this operation is found
+[here](sh/poorManBenchmarTool.sh).
+
+All code was compiled using `-O2`.
+
+## Results
+
+**Comparing haskell implementations**
+```{r haskell-densities, echo=FALSE}
+require("ggplot2")
+
+GADT <- read.table("../measurements/GADT.dat")
+ST <- read.table("../measurements/ST.dat")
+STU <- read.table("../measurements/STU.dat")
+
+DF <- data.frame(GADT= GADT$V1, ST=ST$V1, STU= STU$V1)
+dfs <- stack(DF)
+names(dfs)<- c("Time","Implementation")
+
+p <- ggplot(dfs, aes(x=Time))
+p <- p + geom_density(aes(group=Implementation, colour=Implementation, fill=Implementation), alpha=0.3)
+p <- p + ggtitle("Running times for the haskell implementations.")
+p + xlab("Time in seconds")
+```
+
+The GADT implementation is the best. Surprisingly, the STU is slightly worse
+than ST.
+
+Here are some summary statistics of the running times for each haskell
+implementation.
+
+```{r haskell-summaries, echo=FALSE}
+summary(DF)
+```
+
+**Comparation to (python + numpy)**
+```{r haskell-python-densities, echo=FALSE}
+
+PYTHON <- read.table("../measurements/Python.dat")
+
+DF <- data.frame(GADT= GADT$V1, PYTHON= PYTHON$V1)
+dfs <- stack(DF)
+names(dfs)<- c("Time","Implementation")
+
+pp <- ggplot(dfs, aes(x=Time))
+pp <- pp + geom_density(aes(group=Implementation, colour=Implementation, fill=Implementation), alpha=0.3)
+pp <- pp + ggtitle("Comparing running times with (python + numpy)")
+pp + xlab("Time in seconds")
+```
+
+My haskell implementation is 9 times faster than my python one.
+
+Here are some summary statistics of the running times for both
+implementation.
+
+```{r haskell-python-summaries, echo=FALSE}
+summary(DF)
+```
+
+## Notes
+
+I wanted my haskell implementations to make type-safe scalar products. The
+convoluted computations of the next model are the consequence of performance
+optimizations.
+
+For the python comparation, I wanted to see how haskell compared to a python
+solution using what appears to be a popular library. In other words, I don't claim
+that my python implementatoin is the best possible one.
+
+All the raw data can be found in the [measurements](../measurements) folder.
