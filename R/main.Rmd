@@ -167,7 +167,8 @@ implementation.
 summary(DF)
 ```
 
-**Comparation to (python + numpy)**
+**Comparing to (python + numpy)**
+
 ```{r haskell-python-densities, echo=FALSE}
 
 PYTHON <- read.table("../measurements/Python.dat")
