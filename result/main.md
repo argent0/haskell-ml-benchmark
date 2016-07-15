@@ -139,7 +139,7 @@ The whole code can be found [here](../src/MainSTU.hs).
 I also made a python-3.5.2 implementation to compare. This version uses the
 [`numpy`](http://www.numpy.org/)-1.11.1 python library to perform the vector operations.
 
-The code can be found [here](src/Main.py).
+The code can be found [here](../src/Main.py).
 
 **Benchmark**
 
@@ -155,7 +155,7 @@ All code was compiled using `-O2`.
 **Comparing haskell implementations**
 ![plot of chunk haskell-densities](figure/haskell-densities-1.png)
 
-* The GADT implementation is the best. 
+* The GADT implementation is the best.
 * STU and ST are very similar.
 
 Here are some summary statistics of the running times for each Haskell

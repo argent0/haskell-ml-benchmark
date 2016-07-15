@@ -139,7 +139,7 @@ The whole code can be found [here](../src/MainSTU.hs).
 I also made a python-3.5.2 implementation to compare. This version uses the
 [`numpy`](http://www.numpy.org/)-1.11.1 python library to perform the vector operations.
 
-The code can be found [here](src/Main.py).
+The code can be found [here](../src/Main.py).
 
 **Benchmark**
 
