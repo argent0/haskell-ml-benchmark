@@ -1,4 +1,4 @@
-result/main.md:  R/make.R measurements/Python.dat measurements/GADT.dat measurements/STU.dat R/main.Rmd
+result/main.md:  R/make.R measurements/Python.dat measurements/GADT.dat measurements/STU.dat measurements/ST.dat R/main.Rmd
 	R --slave -f $<
 	mv main.md result/
 
