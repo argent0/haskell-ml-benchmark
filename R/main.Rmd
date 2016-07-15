@@ -79,8 +79,8 @@ The whole code can be found [here](../src/MainGADT.hs).
 
 **MonadST, STArray & IArray**
 
-The first implementation performs vector operations an `IArray` parametrized by
-the its number of elements:
+The second implementation performs vector operations using an `IArray`
+parametrized by its number of elements:
 
 ```haskell
 data Vector :: Nat -> * where
@@ -134,7 +134,7 @@ The code can be found [here](src/Main.py).
 For each implementation I measured the time needed to train a model using
 1,000,000 examples. This measurement is repeated 100 times to observe the
 variations. The code performing this operation is found
-[here](sh/poorManBenchmarTool.sh).
+[here](../sh/poorManBenchmarTool.sh).
 
 All code was compiled using `-O2`.
 
