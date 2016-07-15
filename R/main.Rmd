@@ -1,7 +1,6 @@
 # "Haskell's stochastic gradient descent implementations comparison.
 
-**date:** "2016-07-14"
-**author:** "Aner Oscar Lucero"
+**Date:** "2016-07-14" **Author:** "Aner Oscar Lucero"
 
 ## Method
 
