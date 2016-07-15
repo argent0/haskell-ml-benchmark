@@ -48,16 +48,16 @@ instance Foldable (Vector' n) where
    foldMap f (x :- xs) = f x `mappend` foldMap f xs
 
 data Vector :: Nat -> * where
-   Vector :: SNat n -> UArray Int Double -> Vector n
-
-vector :: SNat ('S n) -> Vector' ('S n) Double -> Vector ('S n)
-vector sn = Vector sn . listArray (1, snatToInt sn) . toList 
+   Vector :: SNat n -> Int -> UArray Int Double -> Vector n
 
 instance Show (Vector n) where
-   show (Vector sn a) = "Vector " ++ show (snatToInt sn) ++ " " ++ show a
+   show (Vector sn _ a) = "Vector " ++ show (snatToInt sn) ++ " " ++ show a
+
+vector :: SNat ('S n) -> Vector' ('S n) Double -> Vector ('S n)
+vector sn = Vector sn (snatToInt sn) . listArray (1, snatToInt sn) . toList 
 
 zeros :: SNat ('S n) -> Vector ('S n)
-zeros sn = Vector sn $ listArray (1, snatToInt sn) $ replicate (snatToInt sn) 0
+zeros sn = Vector sn (snatToInt sn) $ listArray (1, snatToInt sn) $ replicate (snatToInt sn) 0
 
 type NFeatures = ('S ('S 'Z))
 
@@ -84,7 +84,7 @@ nextModel ::
    Features -> 
    Model --the resulting model
 
-nextModel lambda learningRate difference (Vector sn modelArr) (Vector _ featureArr) = Vector sn $ runSTUArray $ do
+nextModel lambda learningRate difference (Vector sn nResultElements modelArr) (Vector _ _ featureArr) = Vector sn nResultElements $ runSTUArray $ do
    result <- newArray (1, nResultElements) 0 :: ST s (STUArray s Int Double)
    writeArray result 1 $ (modelArr ! 1) - learningRate * difference
    forM_ [2..nResultElements] (\elementIndex ->
@@ -93,8 +93,6 @@ nextModel lambda learningRate difference (Vector sn modelArr) (Vector _ featureA
          let featureElement = featureArr ! (elementIndex - 1)
          writeArray result elementIndex $ modelElement - learningRate * (difference * featureElement + lambda * modelElement))
    return result
-   where
-   nResultElements = snatToInt sn
 
 stochaticGradientDescentUpdate :: Hypothesis -> Double -> Double -> Example -> Model -> (Target, Model)
 stochaticGradientDescentUpdate hypothesis lambda learningRate (Example features target) model = 
@@ -141,7 +139,7 @@ main =
    zeroModel = zeros (SS sNFeatures)
 
 sigmoidHypothesis :: Model -> Features -> Target
-sigmoidHypothesis (Vector sn modelArr) (Vector _ featuresArr) = runST $ do
+sigmoidHypothesis (Vector sn _ modelArr) (Vector _ _ featuresArr) = runST $ do
    expo <- newSTRef $ modelArr ! 1
    forM_ [2..(snatToInt sn)] (\elementIndex ->
          modifySTRef expo (+ (modelArr ! elementIndex) * (featuresArr ! (elementIndex - 1))))
