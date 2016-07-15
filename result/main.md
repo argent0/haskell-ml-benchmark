@@ -4,7 +4,7 @@
 
 ## Method
 
-I made three implementations of stochastic gradient descent(SGD) to train logistic
+I made three implementations of *stochastic gradient descent* **(SGD)** to train logistic
 regression models.  SGD finds the optimal parameters for the model using one
 example at a time, in contrast to batch-gradient descent which uses many samples
 at once to train the model. SGD only requires to define vector dot product. The
