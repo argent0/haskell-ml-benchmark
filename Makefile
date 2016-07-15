@@ -1,6 +1,7 @@
 result/main.md:  R/make.R measurements/Python.dat measurements/GADT.dat measurements/STU.dat measurements/ST.dat R/main.Rmd
 	R --slave -f $<
 	mv main.md result/
+	mv figure result/
 
 measurements/Python.dat: src/Main.py sh/poorManBenchmarTool.sh
 	bash sh/poorManBenchmarTool.sh "python $<" > $@
