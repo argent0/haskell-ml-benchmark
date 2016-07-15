@@ -171,7 +171,7 @@ implementation.
 My Haskell implementation is 9 times faster than my python one.
 
 Here are some summary statistics of the running times for both
-implementation.
+implementations.
 
 
 ```
