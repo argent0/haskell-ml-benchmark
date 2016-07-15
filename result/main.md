@@ -1,17 +1,16 @@
-# "Haskell's stochastic gradient descent implementations comparation.
+# "Haskell's stochastic gradient descent implementations comparison.
 
-**date:** "2016-07-14"
-**author:** "Aner Oscar Lucero"
+**Date:** "2016-07-14" **Author:** "Aner Oscar Lucero"
 
 ## Method
 
-I made three implementations of stochastic gradien descent(SGD) to train logistic
+I made three implementations of stochastic gradient descent(SGD) to train logistic
 regression models.  SGD finds the optimal parameters for the model using one
-example at a time, in constrast to batch-gradien descent which uses many samples
+example at a time, in contrast to batch-gradient descent which uses many samples
 at once to train the model. SGD only requires to define vector dot product. The
 implementations differ in the way I implemented the vectors.
 
-In pseudo-haskell-code, SGD looks like:
+In pseudo-Haskell-code, SGD looks like:
 
 ```haskell
    model :: Vector (nFeatures + 1) Double
@@ -68,7 +67,7 @@ nextModel' lambda learningRate difference (m :- ms) (f :- fs) =
    (m - learningRate * (difference * f + lambda * m)) :- nextModel' lambda learningRate difference ms fs
 ```
 
-with the hypotesis calculated as:
+With the hypothesis calculated as:
 
 ```haskell
 sigmoidHypothesis :: Model -> Features -> Target
@@ -79,8 +78,8 @@ The whole code can be found [here](../src/MainGADT.hs).
 
 **MonadST, STArray & IArray**
 
-The first implementation performs vector operations an IArray parametrized by
-the its number of elements:
+The second implementation performs vector operations using an `IArray`
+parametrized by its number of elements:
 
 ```haskell
 data Vector :: Nat -> * where
@@ -88,7 +87,7 @@ data Vector :: Nat -> * where
 ```
 
 The `foreach` part of the algorithm and the hypothesis are handled by the
-following imperative-syle code.
+following imperative-style code.
 
 ```haskell
 nextModel lambda learningRate difference (Vector sn modelArr) (Vector _ featureArr) = Vector sn $ runSTArray $ do
@@ -115,8 +114,8 @@ The whole code can be found [here](../src/MainST.hs).
 
 **MonadST, STUArray & UArray**
 
-According to the [wiki](https://wiki.haskell.org/Arrays#Unboxed_arrays), unboxed
-arrays are a lighter version of IArray. It is also easy to change code using
+According to the [wiki](https://wiki.haskell.org/Arrays#Unboxed_arrays), `unboxed`
+arrays are a lighter version of `IArray`. It is also easy to change code using
 `IArray` and `STArray` to start using `UArray` and `STUArray`.  This third
 implementation does just that.
 
@@ -125,7 +124,7 @@ The whole code can be found [here](../src/MainSTU.hs).
 **Python**
 
 I also made a python-3.5.2 implementation to compare. This version uses the
-[numpy](http://www.numpy.org/)-1.11.1 python library to perform the vector operations.
+[`numpy`](http://www.numpy.org/)-1.11.1 python library to perform the vector operations.
 
 The code can be found [here](src/Main.py).
 
@@ -134,7 +133,7 @@ The code can be found [here](src/Main.py).
 For each implementation I measured the time needed to train a model using
 1,000,000 examples. This measurement is repeated 100 times to observe the
 variations. The code performing this operation is found
-[here](sh/poorManBenchmarTool.sh).
+[here](../sh/poorManBenchmarTool.sh).
 
 All code was compiled using `-O2`.
 
@@ -151,7 +150,7 @@ All code was compiled using `-O2`.
 The GADT implementation is the best. Surprisingly, the STU is slightly worse
 than ST.
 
-Here are some summary statistics of the running times for each haskell
+Here are some summary statistics of the running times for each Haskell
 implementation.
 
 
@@ -165,10 +164,11 @@ implementation.
 ##  Max.   :3.410   Max.   :4.594   Max.   :4.607
 ```
 
-**Comparation to (python + numpy)**
+**Comparing to (python + numpy)**
+
 ![plot of chunk haskell-python-densities](figure/haskell-python-densities-1.png)
 
-My haskell implementation is 9 times faster than my python one.
+My Haskell implementation is 9 times faster than my python one.
 
 Here are some summary statistics of the running times for both
 implementation.
@@ -183,3 +183,15 @@ implementation.
 ##  3rd Qu.:3.315   3rd Qu.:30.02  
 ##  Max.   :3.410   Max.   :31.03
 ```
+
+## Notes
+
+I wanted my Haskell implementations to make type-safe scalar products. The
+convoluted computations of the next model are the consequence of performance
+optimizations.
+
+For the python comparison, I wanted to see how Haskell compared to a python
+solution using what appears to be a popular library. In other words, I don't claim
+that my python implementation is the best possible one.
+
+All the raw data can be found in the [measurements](../measurements) folder.
