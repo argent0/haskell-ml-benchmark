@@ -155,8 +155,8 @@ All code was compiled using `-O2`.
 **Comparing haskell implementations**
 ![plot of chunk haskell-densities](figure/haskell-densities-1.png)
 
-The GADT implementation is the best. Surprisingly, the STU is slightly worse
-than ST.
+* The GADT implementation is the best. 
+* STU and ST are very similar.
 
 Here are some summary statistics of the running times for each Haskell
 implementation.

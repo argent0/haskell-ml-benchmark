@@ -170,8 +170,8 @@ p <- p + ggtitle("Running times for the Haskell implementations.")
 p + xlab("Time in seconds")
 ```
 
-The GADT implementation is the best. Surprisingly, the STU is slightly worse
-than ST.
+* The GADT implementation is the best.
+* STU and ST are very similar.
 
 Here are some summary statistics of the running times for each Haskell
 implementation.
