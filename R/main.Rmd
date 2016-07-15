@@ -2,6 +2,12 @@
 
 **Date:** "2016-07-14" **Author:** "Aner Oscar Lucero"
 
+## Abstract
+
+I made three implementations of *stochastic gradient descent* using GADTs, boxed
+arrays and unboxed arrays. I found that the GADTs implementation runs faster. I
+also compared performance with python.
+
 ## Method
 
 I made three implementations of *stochastic gradient descent* **(SGD)** to train logistic

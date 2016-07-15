@@ -1,6 +1,12 @@
-# "Haskell's stochastic gradient descent implementations comparison.
+# "Haskell's stochastic gradient descent implementations comparison. Using GADTs, boxed Arrays and unboxed arrays.
 
 **Date:** "2016-07-14" **Author:** "Aner Oscar Lucero"
+
+## Abstract
+
+I made three implementations of *stochastic gradient descent* using GADTs, boxed
+arrays and unboxed arrays. I found that the GADTs implementation runs faster. I
+also compared performance with python.
 
 ## Method
 
@@ -83,14 +89,23 @@ parametrized by its number of elements:
 
 ```haskell
 data Vector :: Nat -> * where
-   Vector :: SNat n -> Array Int Double -> Vector n
+   Vector :: SNat n -> Int -> Array Int Double -> Vector n
 ```
 
 The `foreach` part of the algorithm and the hypothesis are handled by the
 following imperative-style code.
 
 ```haskell
-nextModel lambda learningRate difference (Vector sn modelArr) (Vector _ featureArr) = Vector sn $ runSTArray $ do
+{-# INLINE nextModel #-}
+nextModel ::
+   Double -> --lambda
+   Double -> --learningRate
+   Double -> --difference
+   Model -> --model
+   Features -> 
+   Model --the resulting model
+
+nextModel lambda learningRate difference (Vector sn nResultElements modelArr) (Vector _ _ featureArr) = Vector sn nResultElements $ runSTArray $ do
    result <- newArray (1, nResultElements) 0 :: ST s (STArray s Int Double)
    writeArray result 1 $ (modelArr ! 1) - learningRate * difference
    forM_ [2..nResultElements] (\elementIndex ->
@@ -99,11 +114,9 @@ nextModel lambda learningRate difference (Vector sn modelArr) (Vector _ featureA
          let featureElement = featureArr ! (elementIndex - 1)
          writeArray result elementIndex $ modelElement - learningRate * (difference * featureElement + lambda * modelElement))
    return result
-   where
-   nResultElements = snatToInt sn
 
 sigmoidHypothesis :: Model -> Features -> Target
-sigmoidHypothesis (Vector sn modelArr) (Vector _ featuresArr) = runST $ do
+sigmoidHypothesis (Vector sn _ modelArr) (Vector _ _ featuresArr) = runST $ do
    expo <- newSTRef $ modelArr ! 1
    forM_ [2..(snatToInt sn)] (\elementIndex ->
          modifySTRef expo (+ (modelArr ! elementIndex) * (featuresArr ! (elementIndex - 1))))
@@ -151,12 +164,12 @@ implementation.
 
 ```
 ##       GADT             ST             STU       
-##  Min.   :3.256   Min.   :4.391   Min.   :4.410  
-##  1st Qu.:3.280   1st Qu.:4.417   1st Qu.:4.449  
-##  Median :3.296   Median :4.444   Median :4.491  
-##  Mean   :3.299   Mean   :4.452   Mean   :4.487  
-##  3rd Qu.:3.315   3rd Qu.:4.476   3rd Qu.:4.510  
-##  Max.   :3.410   Max.   :4.594   Max.   :4.607
+##  Min.   :3.256   Min.   :4.320   Min.   :4.364  
+##  1st Qu.:3.280   1st Qu.:4.369   1st Qu.:4.406  
+##  Median :3.296   Median :4.409   Median :4.426  
+##  Mean   :3.299   Mean   :4.409   Mean   :4.444  
+##  3rd Qu.:3.315   3rd Qu.:4.438   3rd Qu.:4.461  
+##  Max.   :3.410   Max.   :4.595   Max.   :4.805
 ```
 
 **Comparing to (python + numpy)**
