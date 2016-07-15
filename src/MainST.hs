@@ -83,18 +83,12 @@ nextModel ::
 
 nextModel lambda learningRate difference (Vector sn modelArr) (Vector _ featureArr) = Vector sn $ runSTArray $ do
    result <- newArray (1, nResultElements) 0 :: ST s (STArray s Int Double)
-   forM_ [1..nResultElements] (\elementIndex ->
+   writeArray result 1 $ (modelArr ! 1) - learningRate * difference
+   forM_ [2..nResultElements] (\elementIndex ->
       do
          let modelElement = modelArr ! elementIndex
-         if elementIndex == 1
-            then
-               do
-                  let featureElement = 1
-                  writeArray result elementIndex $ modelElement - learningRate * (difference * featureElement)
-            else
-               do
-                  let featureElement = featureArr ! (elementIndex - 1)
-                  writeArray result elementIndex $ modelElement - learningRate * (difference * featureElement + lambda * modelElement))
+         let featureElement = featureArr ! (elementIndex - 1)
+         writeArray result elementIndex $ modelElement - learningRate * (difference * featureElement + lambda * modelElement))
    return result
    where
    nResultElements = snatToInt sn
