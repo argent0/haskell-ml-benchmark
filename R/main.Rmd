@@ -1,11 +1,11 @@
-# "Haskell's stochastic gradient descent implementations comparison. Using GADTs, boxed Arrays and unboxed arrays.
+# "Haskell's stochastic gradient descent implementations comparison.
 
 **Date:** "2016-07-14" **Author:** "Aner Oscar Lucero"
 
 ## Abstract
 
 I made three implementations of *stochastic gradient descent* using GADTs, boxed
-arrays and unboxed arrays. I found that the GADTs implementation runs faster. I
+arrays, unboxed arrays and `Data.Vector`. I found that the GADTs implementation runs faster. I
 also compared performance with python.
 
 ## Method
