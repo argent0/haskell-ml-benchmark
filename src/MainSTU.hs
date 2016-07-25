@@ -11,7 +11,6 @@ module Main (main) where
 
 import System.Random
 
-import Data.Array.ST
 import Control.Monad.ST
 import Data.STRef
 
@@ -151,9 +150,9 @@ main =
    zeroModel = zeros (SS sNFeatures)
 
 sigmoidHypothesis :: Model -> Features -> Target
-sigmoidHypothesis (Vector sn _ modelArr) (Vector _ _ featuresArr) = runST $ do
+sigmoidHypothesis (Vector _ nElements modelArr) (Vector _ _ featuresArr) = runST $ do
    expo <- newSTRef $ modelArr ! 1
-   forM_ [2..(snatToInt sn)] (\elementIndex ->
+   forM_ [2..nElements] (\elementIndex ->
          modifySTRef expo (+ (modelArr ! elementIndex) * (featuresArr ! (elementIndex - 1))))
    readSTRef expo >>= \e -> return $ 1 / (1 + exp (negate e))
 

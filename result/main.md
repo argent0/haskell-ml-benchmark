@@ -164,12 +164,12 @@ implementation.
 
 ```
 ##       GADT             ST             STU       
-##  Min.   :3.256   Min.   :4.320   Min.   :4.364  
-##  1st Qu.:3.280   1st Qu.:4.369   1st Qu.:4.406  
-##  Median :3.296   Median :4.409   Median :4.426  
-##  Mean   :3.299   Mean   :4.409   Mean   :4.444  
-##  3rd Qu.:3.315   3rd Qu.:4.438   3rd Qu.:4.461  
-##  Max.   :3.410   Max.   :4.595   Max.   :4.805
+##  Min.   :3.256   Min.   :4.320   Min.   :4.625  
+##  1st Qu.:3.280   1st Qu.:4.369   1st Qu.:4.649  
+##  Median :3.296   Median :4.409   Median :4.671  
+##  Mean   :3.299   Mean   :4.409   Mean   :4.684  
+##  3rd Qu.:3.315   3rd Qu.:4.438   3rd Qu.:4.700  
+##  Max.   :3.410   Max.   :4.595   Max.   :4.952
 ```
 
 **Comparing to (python + numpy)**
