@@ -159,8 +159,9 @@ library("ggplot2")
 GADT <- read.table("../measurements/GADT.dat")
 ST <- read.table("../measurements/ST.dat")
 STU <- read.table("../measurements/STU.dat")
+VECTOR <- read.table("../measurements/Vector.dat")
 
-DF <- data.frame(GADT= GADT$V1, ST=ST$V1, STU= STU$V1)
+DF <- data.frame(GADT= GADT$V1, ST=ST$V1, STU= STU$V1, VECTOR=VECTOR$V1)
 dfs <- stack(DF)
 names(dfs)<- c("Time","Implementation")
 
@@ -171,7 +172,6 @@ p + xlab("Time in seconds")
 ```
 
 * The GADT implementation is the best.
-* STU and ST are very similar.
 
 Here are some summary statistics of the running times for each Haskell
 implementation.

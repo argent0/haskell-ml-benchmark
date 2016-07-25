@@ -156,20 +156,19 @@ All code was compiled using `-O2`.
 ![plot of chunk haskell-densities](figure/haskell-densities-1.png)
 
 * The GADT implementation is the best.
-* STU and ST are very similar.
 
 Here are some summary statistics of the running times for each Haskell
 implementation.
 
 
 ```
-##       GADT             ST             STU       
-##  Min.   :3.256   Min.   :4.320   Min.   :4.625  
-##  1st Qu.:3.280   1st Qu.:4.369   1st Qu.:4.649  
-##  Median :3.296   Median :4.409   Median :4.671  
-##  Mean   :3.299   Mean   :4.409   Mean   :4.684  
-##  3rd Qu.:3.315   3rd Qu.:4.438   3rd Qu.:4.700  
-##  Max.   :3.410   Max.   :4.595   Max.   :4.952
+##       GADT             ST             STU            VECTOR     
+##  Min.   :3.256   Min.   :4.415   Min.   :4.729   Min.   :4.262  
+##  1st Qu.:3.280   1st Qu.:4.474   1st Qu.:4.778   1st Qu.:4.317  
+##  Median :3.296   Median :4.494   Median :4.790   Median :4.337  
+##  Mean   :3.299   Mean   :4.503   Mean   :4.795   Mean   :4.337  
+##  3rd Qu.:3.315   3rd Qu.:4.517   3rd Qu.:4.802   3rd Qu.:4.352  
+##  Max.   :3.410   Max.   :4.742   Max.   :4.939   Max.   :4.418
 ```
 
 **Comparing to (python + numpy)**
