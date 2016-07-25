@@ -10,7 +10,7 @@ also compared performance with python.
 
 ## Method
 
-I made three implementations of *stochastic gradient descent* **(SGD)** to train logistic
+I made various implementations of *stochastic gradient descent* **(SGD)** to train logistic
 regression models.  SGD finds the optimal parameters for the model using one
 example at a time, in contrast to batch-gradient descent which uses many samples
 at once to train the model. SGD only requires to define vector dot product. The
@@ -116,11 +116,12 @@ nextModel lambda learningRate difference (Vector sn nResultElements modelArr) (V
    return result
 
 sigmoidHypothesis :: Model -> Features -> Target
-sigmoidHypothesis (Vector sn _ modelArr) (Vector _ _ featuresArr) = runST $ do
+sigmoidHypothesis (Vector _ nElements modelArr) (Vector _ _ featuresArr) = runST $ do
    expo <- newSTRef $ modelArr ! 1
-   forM_ [2..(snatToInt sn)] (\elementIndex ->
+   forM_ [2..nElements] (\elementIndex ->
          modifySTRef expo (+ (modelArr ! elementIndex) * (featuresArr ! (elementIndex - 1))))
    readSTRef expo >>= \e -> return $ 1 / (1 + exp (negate e))
+
 ```
 
 The whole code can be found [here](../src/MainST.hs).
@@ -133,6 +134,41 @@ arrays are a lighter version of `IArray`. It is also easy to change code using
 implementation does just that.
 
 The whole code can be found [here](../src/MainSTU.hs).
+
+**Data.Vector**
+
+Haskell's [Data.Vector](https://hackage.haskell.org/package/vector) library is
+an efficient implementation of Int-indexed arrays (both mutable and immutable),
+with a powerful loop optimisation framework.
+
+Here are the highlights of implementing SGD using this library:
+
+```haskell
+{-# INLINE nextModel #-}
+import qualified Data.Vector as V
+
+data Vector :: Nat -> * where
+   Vector :: SNat n -> V.Vector Double -> Vector n
+
+nextModel ::
+   Double -> --lambda
+   Double -> --learningRate
+   Double -> --difference
+   Model -> --model
+   Features -> 
+   Model --the resulting model
+
+nextModel lambda learningRate difference (Vector sn modelArr) (Vector _ featureArr) = Vector sn $
+   V.update
+      (V.zipWith (-) modelArr $ (* learningRate) <$> V.zipWith (+) (fmap (* difference) featureArr) (fmap (* lambda) modelArr))
+      (V.singleton (0, (modelArr V.! 0) - learningRate * difference))
+
+sigmoidHypothesis :: Model -> Features -> Target
+sigmoidHypothesis (Vector _ modelArr) (Vector _ featuresArr) =
+   1 / ( 1 + exp (negate $ V.foldl' (+) 0 $ V.zipWith (*) modelArr (V.cons 1 featuresArr)))
+```
+
+The whole code can be found [here](../src/MainVector.hs).
 
 **Python**
 
@@ -163,12 +199,12 @@ implementation.
 
 ```
 ##       GADT             ST             STU            VECTOR     
-##  Min.   :3.256   Min.   :4.415   Min.   :4.729   Min.   :4.262  
-##  1st Qu.:3.280   1st Qu.:4.474   1st Qu.:4.778   1st Qu.:4.317  
-##  Median :3.296   Median :4.494   Median :4.790   Median :4.337  
-##  Mean   :3.299   Mean   :4.503   Mean   :4.795   Mean   :4.337  
-##  3rd Qu.:3.315   3rd Qu.:4.517   3rd Qu.:4.802   3rd Qu.:4.352  
-##  Max.   :3.410   Max.   :4.742   Max.   :4.939   Max.   :4.418
+##  Min.   :3.256   Min.   :4.415   Min.   :4.446   Min.   :4.262  
+##  1st Qu.:3.280   1st Qu.:4.474   1st Qu.:4.471   1st Qu.:4.317  
+##  Median :3.296   Median :4.494   Median :4.494   Median :4.337  
+##  Mean   :3.299   Mean   :4.503   Mean   :4.518   Mean   :4.337  
+##  3rd Qu.:3.315   3rd Qu.:4.517   3rd Qu.:4.537   3rd Qu.:4.352  
+##  Max.   :3.410   Max.   :4.742   Max.   :4.801   Max.   :4.418
 ```
 
 **Comparing to (python + numpy)**

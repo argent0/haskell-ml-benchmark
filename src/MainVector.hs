@@ -75,7 +75,7 @@ nextModel ::
    Double -> --learningRate
    Double -> --difference
    Model -> --model
-   Features -> 
+   Features ->
    Model --the resulting model
 
 nextModel lambda learningRate difference (Vector sn modelArr) (Vector _ featureArr) = Vector sn $

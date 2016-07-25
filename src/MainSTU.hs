@@ -13,12 +13,12 @@ import System.Random
 
 import Control.Monad.ST
 import Data.STRef
+import Data.Array.ST
 
 import Control.Monad
 import Data.Array.IArray
 import Data.Array.Unboxed
 import Data.Foldable (toList)
-import Data.Function
 
 data Nat :: * where
    Z :: Nat
@@ -85,25 +85,15 @@ nextModel ::
    Model --the resulting model
 
 nextModel lambda learningRate difference (Vector sn nResultElements modelArr) (Vector _ _ featureArr) =
-   Vector sn nResultElements $ nxtModelArr // [(1, (modelArr ! 1) - learningRate * difference)]
-   where
-   nxtModelArr =
-      listArray
-         (1,nResultElements) $
-         zipWith (-)
-            (elems modelArr) $
-            (zipWith (+) `on` elems)
-               (amap (* difference) featureArr)
-               (amap (* lambda) modelArr)
-   --Vector sn nResultElements $ runSTUArray $ do
-   --   result <- newArray (1, nResultElements) 0 :: ST s (STUArray s Int Double)
-   --   writeArray result 1 $ (modelArr ! 1) - learningRate * difference
-   --   forM_ [2..nResultElements] (\elementIndex ->
-   --      do
-   --         let modelElement = modelArr ! elementIndex
-   --         let featureElement = featureArr ! (elementIndex - 1)
-   --         writeArray result elementIndex $ modelElement - learningRate * (difference * featureElement + lambda * modelElement))
-   --   return result
+   Vector sn nResultElements $ runSTUArray $ do
+      result <- newArray (1, nResultElements) 0 :: ST s (STUArray s Int Double)
+      writeArray result 1 $ (modelArr ! 1) - learningRate * difference
+      forM_ [2..nResultElements] (\elementIndex ->
+         do
+            let modelElement = modelArr ! elementIndex
+            let featureElement = featureArr ! (elementIndex - 1)
+            writeArray result elementIndex $ modelElement - learningRate * (difference * featureElement + lambda * modelElement))
+      return result
 
 stochaticGradientDescentUpdate :: Hypothesis -> Double -> Double -> Example -> Model -> (Target, Model)
 stochaticGradientDescentUpdate hypothesis lambda learningRate (Example features target) model = 
