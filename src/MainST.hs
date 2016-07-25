@@ -48,7 +48,7 @@ data Vector :: Nat -> * where
    Vector :: SNat n -> Int -> Array Int Double -> Vector n
 
 instance Show (Vector n) where
-   show (Vector sn _ a) = "Vector " ++ show (snatToInt sn) ++ " " ++ show a
+   show (Vector _ nElements a) = "Vector " ++ show nElements ++ " " ++ show a
 
 vector :: SNat ('S n) -> Vector' ('S n) Double -> Vector ('S n)
 vector sn = Vector sn (snatToInt sn) . listArray (1, snatToInt sn) . toList 
